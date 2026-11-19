@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class Lexer {
 
     // Osnovni biten raspored
-    static LinkedList<Zeton> lista = new LinkedList<Zeton>();
+    private final LinkedList<Zeton> lista = new LinkedList<Zeton>();
 
     static String Bukva = "[абвгдѓежзѕијклњмнљопрстќуфхцчџшАБВГДЃЕЖЗЅИЈКЛЊМНЉОПРСТЌУФХЦЧШ]";
     static String Brojka = "[0-9]+";
@@ -75,10 +75,13 @@ public class Lexer {
 
     public LinkedList<Zeton> getLista() {
         //  lista.add(new Zeton( "$","0",  0, 0));
-        return lista;
+        return new LinkedList<Zeton>(lista);
     }
 
     public boolean imaGreski() {
+        if (lista.isEmpty()) {
+            return true;
+        }
         Zeton prethoden = lista.getFirst();
         boolean bool = true;
         for (Zeton z : lista) {
@@ -161,7 +164,7 @@ public class Lexer {
         return new ArrayList<String>();
     }
 
-    private static void klasificiraj(String s, int start, int end) {
+    private void klasificiraj(String s, int start, int end) {
 
         if (Pattern.matches(Brojka, s)) {
             lista.add(new Zeton(s, "Brojka", start, end));

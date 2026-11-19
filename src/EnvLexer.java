@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class EnvLexer {
     // Osnovni biten raspored
 
-    static LinkedList<Zeton> lista = new LinkedList<Zeton>();
+    private final LinkedList<Zeton> lista = new LinkedList<Zeton>();
     static String Brojka = "[0-9]+";
     static String Otvorena = "\\(";
     static String Zatvorena = "\\)";
@@ -46,7 +46,7 @@ public class EnvLexer {
     }
 
     public LinkedList<Zeton> getLista() {
-        return lista;
+        return new LinkedList<Zeton>(lista);
     }
 
     public boolean imaGreski() {
@@ -115,7 +115,7 @@ public class EnvLexer {
         return new ArrayList<String>();
     }
 
-    private static void klasificiraj(String s, int start, int end) {
+    private void klasificiraj(String s, int start, int end) {
 
         if (Pattern.matches(Brojka, s)) {
             lista.add(new Zeton(s, "Brojka", start, end));
