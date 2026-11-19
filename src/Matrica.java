@@ -3,13 +3,13 @@ import java.util.LinkedList;
 
 public class Matrica {
 
-    static LinkedList<ZetonMapa> zetoni = new LinkedList<ZetonMapa>();
-    static LinkedList<Dzid> dzidovi = new LinkedList<Dzid>();
-    static int mapa[][] = new int[0][0];
-    static Igrac igrac;
-    static int X;
-    static int Y;
-    static LinkedList<Zeton> tokeni;
+    private final LinkedList<ZetonMapa> zetoni = new LinkedList<ZetonMapa>();
+    private final LinkedList<Dzid> dzidovi = new LinkedList<Dzid>();
+    private int mapa[][] = new int[0][0];
+    private Igrac igrac;
+    private int X;
+    private int Y;
+    private LinkedList<Zeton> tokeni;
 
     Matrica(LinkedList<Zeton> lista) {
         tokeni = lista;
@@ -30,7 +30,9 @@ public class Matrica {
     
     public int [][] vrati_mapa()
     {
-        return mapa;
+        int[][] copy = new int[mapa.length][];
+        for (int i = 0; i < mapa.length; i++) copy[i] = mapa[i].clone();
+        return copy;
     }
     
     public int vrati_x()
@@ -48,7 +50,7 @@ public class Matrica {
         return igrac;
     }
 
-    static public boolean eBroj(String s) {
+    public boolean eBroj(String s) {
         try {
             Integer.parseInt(s);
         } catch (NumberFormatException e) {
@@ -57,7 +59,7 @@ public class Matrica {
         return true;
     }
 
-    static public void polniListi(LinkedList<Zeton> tokeni) {
+    public void polniListi(LinkedList<Zeton> tokeni) {
 
         Zeton momentalen = null;
         Zeton prethoden = null;
@@ -158,7 +160,7 @@ public class Matrica {
 
     }
 
-    public static void konstuirajMapa() {
+    public void konstuirajMapa() {
         //1 e dzid
         //2 e zeton
         //3 e igrac
