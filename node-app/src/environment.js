@@ -7,6 +7,7 @@ export function parseEnvironment(source){
  const tokens=[],ts=text.match(/жетони\s*почеток([\s\S]*?)крај/iu);if(ts)for(const m of ts[1].matchAll(/\(\s*(\d+)\s*,\s*(\d+)\s*\)/gu))tokens.push([Number(m[1]),Number(m[2])]);else diagnostics.push({code:"ENV004",severity:"error",message:"Недостасува секцијата жетони.",line:1,column:1});
  const r=text.match(/робот\s+([ИЗСЈ])\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)/iu);if(!r)diagnostics.push({code:"ENV005",severity:"error",message:"Недостасува позиција на роботот, на пример робот И (1,1).",line:1,column:1});
  const environment={width,height,walls,tokens,robot:r?{direction:r[1].toUpperCase(),x:Number(r[2]),y:Number(r[3])}:null};
+ for(const [x,y] of walls)if(!inside(environment,x,y))diagnostics.push({code:"ENV008",severity:"error",message:"Ѕидот на позиција ("+x+","+y+") е надвор од мапата.",line:1,column:1});
  if(environment.robot&&!inside(environment,environment.robot.x,environment.robot.y))diagnostics.push({code:"ENV006",severity:"error",message:"Почетната позиција на роботот е надвор од мапата.",line:1,column:1});
  for(const [x,y] of tokens)if(!inside(environment,x,y))diagnostics.push({code:"ENV007",severity:"error",message:"Жетон на позиција ("+x+","+y+") е надвор од мапата.",line:1,column:1});
  return {environment:diagnostics.some(d=>d.severity==="error")?null:environment,diagnostics};
