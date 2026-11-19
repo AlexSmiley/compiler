@@ -1,32 +1,76 @@
 # RoboL Compiler
 
-RoboL is an educational compiler for a Macedonian-keyword language, with a Swing editor and robot-world simulator.
+RoboL is an educational compiler for a Macedonian-keyword language with a robot-world simulator.
 
-## Requirements
-- JDK 8+
-- Apache Maven 3.8+
+## Applications
 
-## Build and test
+This repository keeps the original Java Swing application and adds a separate Node.js web application:
+
+| Application | Location | Purpose |
+|---|---|---|
+| Java desktop | `src/` | Original Swing editor, compiler and simulator |
+| Node.js web IDE | `node-app/` | HTTP compiler API, browser editor and canvas simulator |
+
+## Run the Node.js web IDE
+
+Requirements: Node.js 18 or newer. The web application uses Node's built-in HTTP server and has no runtime npm dependencies.
+
 ```bash
-mvn clean test
-mvn package
+cd node-app
+npm test
+npm start
 ```
 
-## Run
-The legacy UI loads assets relative to its working directory. Run from `src/`:
+Open http://localhost:3000.
+
+The browser IDE includes a RoboL editor, environment editor, compile/run controls, diagnostics, token inspection, generated RIMAL output, a robot map and an execution trace.
+
+### HTTP API
+
+- `GET /api/health` – service health.
+- `POST /api/compile` – JSON body `{"source":"..."}`; returns tokens, parsed program, RIMAL text and diagnostics.
+- `POST /api/run` – JSON body `{"source":"...","environment":"..."}`; compiles and simulates the main procedure.
+
+### Supported Node.js language features
+
+The new implementation currently supports procedure declarations and calls, the main procedure, typed procedure parameters, local variable declarations, assignments and arithmetic expressions, robot commands, teleport, conditional blocks, counted repeat blocks and repeat-until blocks. The environment parser reads dimensions, wall segments, token coordinates and the robot's initial position.
+
+The Node.js parser and simulator are a clean implementation of the language subset above; they do not call the Java classes. Some legacy semantic rules and the exact behavior of all RIMAL instructions still need parity tests against the original Java compiler. In particular, generated control-flow RIMAL should be treated as an initial compatible-format backend until verified against the RIMAL runtime.
+
+## Run the original Java desktop application
+
+Requirements: JDK 8+ and Maven 3.8+.
+
 ```bash
+mvn clean verify
 cd src
 java -cp ../target/classes Applikacija
 ```
 
-## Modernization
-The legacy grammar, parser, generator and Swing UI remain available. A new `mk.robol.compiler` migration boundary now contains:
-- `diagnostics`: structured diagnostic codes, severity and source spans.
-- `ast`: immutable program, command, assignment and expression nodes.
-- `pipeline`: typed tokens and injected lexer/parser/semantic/code-generation phase contracts. The orchestrator stops after errors and only generates code for semantically valid programs.
+The legacy UI reads example and image files relative to its working directory.
 
-The new pipeline is not yet wired to the legacy parser/generator. Their current implementations mix parsing, semantic checks, console output and code generation; adapting them safely requires separate grammar and RIMAL golden-file regression tests.
+## Architecture
 
-Robot-world map, dimensions, walls, tokens and player state are instance-owned by each `Matrica`. Map access returns a defensive copy so simulations do not share mutable grids.
+```text
+node-app/
+  src/
+    lexer.js          # Unicode-aware Macedonian lexer
+    parser.js         # Recursive-descent parser and AST
+    compiler.js       # Compile/run orchestration
+    codegen.js        # RIMAL-like output
+    environment.js    # Robot-world input validation
+    simulator.js      # Isolated robot-world interpreter
+    server.js         # HTTP API and static frontend hosting
+  public/
+    index.html        # Browser IDE
+    styles.css
+    app.js            # API client and canvas renderer
+  test/
+    compiler.test.js
+src/
+  # Original Java application and staged Java compiler architecture
+tests/
+  # Java regression tests
+```
 
-Next steps: adapt the lexer to typed tokens, implement an AST-producing parser, move semantic checks into a dedicated pass, replace token-window generation with AST visitors, and move UI assets to classpath resources. Legacy classes remain in the default package during migration; keep source files UTF-8 encoded.
+The Java and Node.js implementations are deliberately kept side by side during migration. The Node.js web app is independently deployable and does not require a JVM.
