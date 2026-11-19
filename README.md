@@ -1,71 +1,32 @@
 # RoboL Compiler
 
-RoboL is an educational compiler project for a Macedonian-keyword programming language. The application combines a Swing-based editor with a compiler pipeline and a small robot-world simulator.
-
-## What is included
-
-- **RoboL source lexer** – recognizes Macedonian keywords, identifiers, numeric literals, operators and punctuation.
-- **Predictive parser** – uses grammar productions and a parse table to validate RoboL programs.
-- **Semantic checks** – tracks variables and procedures and reports declaration/type/argument errors.
-- **RIMAL code generation** – translates accepted RoboL token streams into the project's RIMAL-like instruction format.
-- **Environment parser and lexer** – reads the robot-world description (dimensions, walls, tokens and robot position).
-- **Swing UI and animation** – provides the desktop editor and visual robot simulation.
-
-The original language implementation and sample programs are retained. The current refactoring deliberately avoids changing the language grammar or generated instruction semantics.
+RoboL is an educational compiler for a Macedonian-keyword language, with a Swing editor and robot-world simulator.
 
 ## Requirements
-
-- JDK 8 or newer
+- JDK 8+
 - Apache Maven 3.8+
 
 ## Build and test
-
-From the repository root:
-
 ```bash
 mvn clean test
 mvn package
 ```
 
-The Maven build compiles the existing Java sources in `src/` and runs the regression tests in `tests/`.
-
-## Run the desktop application
-
-The legacy UI loads its sample programs and image assets from the working directory. Build first, then run with `src/` as the working directory:
-
-**Linux / macOS**
-
+## Run
+The legacy UI loads assets relative to its working directory. Run from `src/`:
 ```bash
 cd src
 java -cp ../target/classes Applikacija
 ```
 
-**Windows PowerShell**
+## Modernization
+The legacy grammar, parser, generator and Swing UI remain available. A new `mk.robol.compiler` migration boundary now contains:
+- `diagnostics`: structured diagnostic codes, severity and source spans.
+- `ast`: immutable program, command, assignment and expression nodes.
+- `pipeline`: typed tokens and injected lexer/parser/semantic/code-generation phase contracts. The orchestrator stops after errors and only generates code for semantically valid programs.
 
-```powershell
-Set-Location src
-java -cp ..\target\classes Applikacija
-```
+The new pipeline is not yet wired to the legacy parser/generator. Their current implementations mix parsing, semantic checks, console output and code generation; adapting them safely requires separate grammar and RIMAL golden-file regression tests.
 
-Keep the terminal open while using the application. Generated files such as `rimal.rml` and `greski.txt` are written relative to the working directory.
+Robot-world map, dimensions, walls, tokens and player state are instance-owned by each `Matrica`. Map access returns a defensive copy so simulations do not share mutable grids.
 
-## Repository layout
-
-```text
-.
-├── src/                 # Existing compiler, parser, UI, simulator and sample assets
-├── tests/               # Automated regression tests
-├── .github/workflows/   # Continuous integration
-├── pom.xml              # Maven build
-└── README.md
-```
-
-## Notes on the modernization
-
-This first refactoring step establishes a reproducible build, automated checks and clearer project documentation without a risky all-at-once rewrite of the legacy parser and GUI. Lexer token collections are now instance-scoped, so creating a second lexer no longer reuses tokens left by a previous compilation. Empty input is handled safely by the RoboL lexer.
-
-Further work should extract the compiler stages behind small interfaces, replace stringly-typed token kinds with an enum, introduce structured diagnostics with source spans, and isolate robot-world state from static fields.
-
-## Language and sample files
-
-The language examples and simulator assets are kept under `src/`. The source files use UTF-8 and include Macedonian Cyrillic keywords. Preserve UTF-8 when editing or processing them.
+Next steps: adapt the lexer to typed tokens, implement an AST-producing parser, move semantic checks into a dedicated pass, replace token-window generation with AST visitors, and move UI assets to classpath resources. Legacy classes remain in the default package during migration; keep source files UTF-8 encoded.
