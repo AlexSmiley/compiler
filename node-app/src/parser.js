@@ -21,7 +21,7 @@ export function parse(tokens){
  while(peek().type!=="eof"){
   expect("процедура");let name=null;if(!at("("))name=identifier();expect("(");const params=[];
   if(!at(")")){do{const type=lower(take().value);if(!["број","насока"].includes(type))throw new ParseError(peek(),"Типот на параметар мора да биде „број“ или „насока“.");params.push({type,name:identifier()});}while(match(","));}
-  expect(")");expect("почеток");const body=[];while(!at("крај")&&peek().type!=="eof")body.push(statement());expect("крај");
+  expect(")");const prelude=[];while(!at("почеток")&&peek().type!=="eof")prelude.push(statement());expect("почеток");const body=prelude;while(!at("крај")&&peek().type!=="eof")body.push(statement());expect("крај");
   const proc={type:"procedure",name,params,body};if(name===null){if(main)throw new ParseError(peek(),"Главната процедура е декларирана повеќе од еднаш.");main=proc;}else procedures.push(proc);
  }
  if(!main)throw new ParseError(peek(),"Недостасува главна процедура: процедура () почеток ... крај.");
