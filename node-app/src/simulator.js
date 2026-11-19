@@ -25,7 +25,7 @@ export function simulate(program,environment,options={}){
     case "if":if(condition(s.condition))execute(s.body,depth);break;
     case "repeat":{const count=Number(evalExpr(s.count));if(!Number.isInteger(count)||count<0||count>maxSteps)throw Error("Повторувањето бара валиден ненегативен број.");for(let i=0;i<count;i++)execute(s.body,depth);break;}
     case "repeatUntil":{let count=0;do{execute(s.body,depth);if(++count>maxSteps)throw Error("Повторувањето ја надмина дозволената граница.");}while(!condition(s.condition));break;}
-    case "call":{const p=procedures.get(s.name);if(!p)throw Error("Непозната процедура „"+s.name+"“.");if(p.params.length!==s.args.length)throw Error("Погрешен број аргументи за „"+s.name+"“.");const saved={...variables};p.params.forEach((param,i)=>variables[param.name]=evalExpr(s.args[i]));execute(p.body,depth+1);Object.keys(variables).forEach(n=>{if(!(n in saved))delete variables[n];});Object.assign(variables,saved);break;}
+    case "call":{const p=procedures.get(s.name);if(!p)throw Error("Непозната процедура „"+s.name+"“.");if(p.params.length!==s.args.length)throw Error("Погрешен број аргументи за „"+s.name+"“.");const saved={...variables},args=s.args.map(evalExpr);p.params.forEach((param,i)=>variables[param.name]=args[i]);execute(p.body,depth+1);Object.keys(variables).forEach(n=>{if(!(n in saved))delete variables[n];});Object.assign(variables,saved);break;}
    }
   }
  };
