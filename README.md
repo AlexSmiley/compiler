@@ -72,5 +72,6 @@ src/
 tests/
   # Java regression tests
 ```
+Link: https://compiler-iota-mauve.vercel.app/
 
 The Java and Node.js implementations are deliberately kept side by side during migration. The Node.js web app is independently deployable and does not require a JVM.
