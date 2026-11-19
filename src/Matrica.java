@@ -160,7 +160,7 @@ public class Matrica {
 
     }
 
-    public static void konstuirajMapa() {
+    public void konstuirajMapa() {
         //1 e dzid
         //2 e zeton
         //3 e igrac
