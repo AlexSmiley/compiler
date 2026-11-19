@@ -16,7 +16,7 @@ function statement(s,out,ctx){
  switch(s.type){
   case "declare":s.names.forEach(n=>out.push("data "+n));break;
   case "command":out.push(commandCode[s.command]);break;
-  case "assign":if(s.value.type==="binary")out.push("push","move regN "+expr(s.value.left),({" + ":"add","-":"sub","*":"mul"})[s.value.operator]+" regN "+expr(s.value.right),"move "+s.name+" regN","pop");else out.push("move "+s.name+" "+expr(s.value));break;
+  case "assign":if(s.value.type==="binary")out.push("push","move regN "+expr(s.value.left),({"+":"add","-":"sub","*":"mul"})[s.value.operator]+" regN "+expr(s.value.right),"move "+s.name+" regN","pop");else out.push("move "+s.name+" "+expr(s.value));break;
   case "teleport":out.push("tlp ("+expr(s.x)+","+expr(s.y)+")");break;
   case "call":out.push("call "+s.name+"("+s.args.map(expr).join(",")+")");break;
   case "if":{const end="if_end_"+(ctx.label++);emitCondition(s.condition,out,end);s.body.forEach(x=>statement(x,out,ctx));out.push(end+":");break;}
